@@ -25,6 +25,8 @@ except ImportError:
 import operator
 import re
 
+from six import u, binary_type
+
 OPERATORS = {
   '>=': operator.ge,
   '>': operator.gt,
@@ -66,10 +68,10 @@ def runQuery(statDict, query):
 def htmlHeader(output, path, serverName, query = None):
   """Writes an HTML header."""
   if path and path != '/':
-    output.write('<title>%s - Status: %s</title>' % (serverName, path))
+    output.write(u('<title>%s - Status: %s</title>') % (serverName, path))
   else:
-    output.write('<title>%s - Status</title>' % serverName)
-  output.write('''
+    output.write(u('<title>%s - Status</title>') % serverName)
+  output.write(u('''
 <style>
 body,td { font-family: monospace }
 .level div {
@@ -83,11 +85,11 @@ span { color: #090; vertical-align: top }
 .key { color: black; font-weight: bold }
 .int, .float { color: #00c }
 </style>
-  ''')
-  output.write('<h1 style="margin: 0">Stats</h1>')
-  output.write('<h3 style="margin: 3px 0 18px">%s</h3>' % serverName)
+  '''))
+  output.write(u('<h1 style="margin: 0">Stats</h1>'))
+  output.write(u('<h3 style="margin: 3px 0 18px">%s</h3>') % serverName)
   output.write(
-      '<p><form action="#" method="GET">Filter: <input type="text" name="query" size="20" value="%s"></form></p>' %
+      u('<p><form action="#" method="GET">Filter: <input type="text" name="query" size="20" value="%s"></form></p>') %
       (query or ''))
 
 
@@ -103,7 +105,7 @@ def _htmlRenderDict(pathParts, statDict, output):
   """Render a dictionary as a table - recursing as necessary."""
   links = []
 
-  output.write('<div class="level">')
+  output.write(u('<div class="level">'))
   for key in sorted(statDict.keys()):
     keyStr = cgi.escape(_utf8str(key))
     value = statDict[key]
@@ -113,28 +115,29 @@ def _htmlRenderDict(pathParts, statDict, output):
       valuePath = pathParts + (keyStr,)
       if isinstance(value, scales.StatContainer) and value.isCollapsed():
         link = '/status/' + '/'.join(valuePath)
-        links.append('<div class="key"><a href="%s">%s</a></div>' % (link, keyStr))
+        links.append(u('<div class="key"><a href="%s">%s</a></div>') % (link, keyStr))
       else:
-        output.write('<div class="key">%s</div>' % keyStr)
+        output.write(u('<div class="key">%s</div>') % keyStr)
         _htmlRenderDict(valuePath, value, output)
     else:
-      output.write('<div><span class="key">%s</span> <span class="%s">%s</span></div>' %
-                   (keyStr, type(value).__name__, cgi.escape(_utf8str(value)).replace('\n', '<br/>')))
+      output.write(u('<div><span class="key">%s</span> <span class="%s">%s</span></div>') %
+                   (keyStr, type(value).__name__,
+                    cgi.escape(_utf8str(value)).replace('\n', '<br/>')))
 
   if links:
     for link in links:
       output.write(link)
 
-  output.write('</div>')
+  output.write(u('</div>'))
 
 
 def _utf8str(x):
   """Like str(x), but returns UTF8."""
-  if isinstance(x, str):
+
+  if isinstance(x, binary_type):
+    return x.decode('utf-8')
+  else:
     return x
-  if isinstance(x, unicode):
-    return x.encode('utf8')
-  return str(x)
 
 
 def jsonFormat(output, statDict = None, query = None, pretty = False):
@@ -150,6 +153,10 @@ def jsonFormat(output, statDict = None, query = None, pretty = False):
     serialized = json.dumps(statDict, cls=scales.StatContainerEncoder, indent=indent)
   except UnicodeDecodeError:
     serialized = json.dumps(statDict, cls=scales.StatContainerEncoder, indent=indent, encoding='iso-8859-1')
+
+  if isinstance(serialized, binary_type):
+    serialized = serialized.decode('utf-8')
+
   output.write(serialized)
-  output.write('\n')
+  output.write(u('\n'))
 

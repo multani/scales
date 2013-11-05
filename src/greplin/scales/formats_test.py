@@ -25,6 +25,7 @@ try:
 except ImportError:
   import json
 
+from six import u
 
 
 class Root(object):
@@ -75,7 +76,7 @@ class StatsTest(unittest.TestCase):
 class UnicodeFormatTest(unittest.TestCase):
   """Test cases for Unicode stat formatting."""
 
-  UNICODE_VALUE = u'\u842c\u77e5\u5802'
+  UNICODE_VALUE = u('\u842c\u77e5\u5802')
 
 
   def testHtmlFormat(self):
@@ -83,7 +84,7 @@ class UnicodeFormatTest(unittest.TestCase):
     out = StringIO()
     formats.htmlFormat(out, statDict={'name': self.UNICODE_VALUE})
     result = out.getvalue()
-    self.assertTrue(self.UNICODE_VALUE.encode('utf8') in result)
+    self.assertTrue(self.UNICODE_VALUE in result)
 
 
   def testJsonFormat(self):
@@ -99,6 +100,7 @@ class UnicodeFormatTest(unittest.TestCase):
     out = StringIO()
     stats = {'garbage': '\xc2\xc2 ROAR!! \0\0'}
     formats.jsonFormat(out, statDict=stats)
-    self.assertEquals(json.loads(out.getvalue()), {u'garbage': u'\xc2\xc2 ROAR!! \0\0'})
+    self.assertEquals(json.loads(out.getvalue()), {
+        u('garbage'): u('\xc2\xc2 ROAR!! \0\0')})
 
 
