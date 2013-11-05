@@ -17,7 +17,7 @@
 from greplin import scales
 from greplin.scales import formats
 
-from StringIO import StringIO
+from six import StringIO
 import unittest
 
 try:
