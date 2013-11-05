@@ -32,6 +32,7 @@ try:
 except ImportError:
     from UserDict import UserDict
 from greplin.scales.samplestats import UniformSample
+import six
 
 ID_KEY = '__STATS__id'
 
@@ -43,7 +44,7 @@ def statsId(obj):
   """Gets a unique ID for each object."""
   if hasattr(obj, ID_KEY):
     return getattr(obj, ID_KEY)
-  newId = NEXT_ID.next()
+  newId = six.next(NEXT_ID)
   setattr(obj, ID_KEY, newId)
   return newId
 
