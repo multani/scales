@@ -670,7 +670,7 @@ class StateTimeStat(Stat):
 def filterCollapsedItems(data):
   """Return a filtered iteration over a list of items."""
   return ((key, value)\
-          for key, value in data.iteritems()\
+          for key, value in six.iteritems(data)\
           if not (isinstance(value, StatContainer) and value.isCollapsed()))
 
 

@@ -101,13 +101,10 @@ def htmlFormat(output, pathParts = (), statDict = None, query = None):
 
 def _htmlRenderDict(pathParts, statDict, output):
   """Render a dictionary as a table - recursing as necessary."""
-  keys = statDict.keys()
-  keys.sort()
-
   links = []
 
   output.write('<div class="level">')
-  for key in keys:
+  for key in sorted(statDict.keys()):
     keyStr = cgi.escape(_utf8str(key))
     value = statDict[key]
     if hasattr(value, '__call__'):

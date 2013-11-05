@@ -23,6 +23,7 @@ except ImportError:
   import json
 import os
 import re
+import six
 
 
 
@@ -230,7 +231,7 @@ class InverseMap(Aggregator):
 
   def result(self):
     """Formats the result."""
-    for value in self.__result.itervalues():
+    for value in six.itervalues(self.__result):
       value.sort(key = _humanSortKey)
     return self.__result
 
@@ -364,18 +365,18 @@ class Aggregation(object):
     if data is None:
       return
 
-    if hasattr(aggregators, 'iteritems'):
+    if hasattr(aggregators, 'items') or hasattr(aggregators, 'iteritems'):
       # Keep walking the tree.
-      for key, value in aggregators.iteritems():
+      for key, value in six.iteritems(aggregators):
         if isinstance(key, tuple):
           key, regex = key
-          for dataKey, dataValue in data.iteritems():
+          for dataKey, dataValue in six.iteritems(data):
             if regex.match(dataKey):
               result.setdefault(key, {})
               self._aggregate(source, value, dataValue, result[key])
         else:
           if key == '*':
-            for dataKey, dataValue in data.iteritems():
+            for dataKey, dataValue in six.iteritems(data):
               result.setdefault(dataKey, {})
               self._aggregate(source, value, dataValue, result[dataKey])
           elif key in data:
@@ -397,7 +398,7 @@ class Aggregation(object):
       return root.result()
     else:
       result = {}
-      for key, value in root.iteritems():
+      for key, value in six.iteritems(root):
         if value:
           result[key] = self.result(value)
       return result
