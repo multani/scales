@@ -100,7 +100,7 @@ class GraphiteReporter(threading.Thread):
     backoff = 0.001
     while True:
       try:
-        self.sock.sendall(msg)
+        self.sock.sendall(msg.encode('utf-8'))
         break
       except socket.error:
         logging.warning('Graphite connection error', exc_info = True)
